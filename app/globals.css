@@ -1,0 +1,37 @@
+:root{
+  --navy:#0B2545; --blue:#1C63D6; --blue-dk:#124A9E; --sky:#EAF2FE;
+  --bg:#FFFFFF; --surface:#FFFFFF; --panel:#F5F8FD; --ink:#101826; --ink-2:#56657A;
+  --line:#DCE6F2; --line-strong:#AFC3DD;
+  --green:#178A55; --green-tint:#DDF1E6; --green-ink:#0D5A37;
+  --blue-tint:#EAF2FE; --blue-ink:#124A9E;
+  --yellow:#B9850A; --yellow-tint:#FBF0D2; --yellow-ink:#6A4C00;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.01em;color:var(--navy)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:9px;padding:12px 20px;font-weight:700;border:1.5px solid transparent;cursor:pointer}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.outline{background:transparent;color:var(--navy);border-color:var(--line-strong)}
+.top{border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;gap:26px;min-height:66px}
+.brand{font-weight:800;font-size:1.25rem;color:var(--navy)}
+nav{display:flex;gap:18px;margin-left:10px}
+nav a{font-weight:600;color:var(--ink-2)}
+.hero{background:var(--navy);color:#fff;padding:52px 0}
+.hero h1{color:#fff;font-size:clamp(2rem,5vw,3rem);line-height:1.08}
+.hero p{color:#C6D7F2;margin-top:12px;max-width:34rem}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:26px}
+@media (max-width:900px){ .grid4{grid-template-columns:repeat(2,1fr)} }
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;overflow:hidden;display:block}
+.card .photo{background:var(--sky);height:120px;display:flex;align-items:center;justify-content:center;color:var(--blue)}
+.card-body{padding:15px}
+.price{font-weight:800;font-size:1.2rem;color:var(--navy);margin-top:10px}
+.trust{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-weight:700;font-size:.82rem;margin-top:8px}
+.trust.green{background:var(--green-tint);color:var(--green-ink)}
+.trust.blue{background:var(--blue-tint);color:var(--blue-ink)}
+.trust.yellow{background:var(--yellow-tint);color:var(--yellow-ink)}
+.field{display:grid;gap:6px;font-weight:600;margin-bottom:14px}
+.field input,.field select{font:inherit;padding:11px 12px;border-radius:8px;border:1.5px solid var(--line-strong)}
+footer{background:var(--navy);color:#C6D7F2;padding:30px 0;text-align:center;font-size:.88rem;margin-top:40px}
