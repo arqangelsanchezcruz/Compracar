@@ -2,11 +2,10 @@
 import { useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 
-// Hub de ejemplo. Reemplaza este id con el id real de "Hub Monterrey"
-// que copiaste de la tabla hubs en Supabase.
 const HUB_MONTERREY_ID_PLACEHOLDER = '4cdd5faf-5548-454f-8fd7-da1bc2ddd727';
 
-// Comisión que cobra CompraCar sobre el precio del vendedor.
+// Comisión que cobra CompraCar, aplicada SOBRE el precio que el vendedor
+// quiere recibir, para obtener el precio que ve el comprador.
 const COMMISSION_PCT = 3.5;
 
 // Marcas más comunes en México. Se puede ampliar cuando quieras.
@@ -21,6 +20,14 @@ function money(n) {
   return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0);
 }
 
+// El vendedor escribe cuánto quiere recibir. El precio que ve el
+// comprador se calcula agregando la comisión y redondeando hacia
+// arriba al múltiplo de 500 más cercano.
+function calcListPrice(desiredReceive) {
+  const raw = desiredReceive * (1 + COMMISSION_PCT / 100);
+  return Math.ceil(raw / 500) * 500;
+}
+
 export default function VenderPage() {
   const [form, setForm] = useState({ brand: '', model: '', year: '', km: '', vin: '', price: '' });
   const [photos, setPhotos] = useState([]);
@@ -31,17 +38,14 @@ export default function VenderPage() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
-  const priceNum = Number(form.price) || 0;
-  const commissionAmount = Math.round((priceNum * COMMISSION_PCT) / 100);
-  const netAmount = priceNum - commissionAmount;
+  const desiredReceive = Number(form.price) || 0;
+  const listPrice = desiredReceive > 0 ? calcListPrice(desiredReceive) : 0;
 
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus('saving');
     setErrorMsg('');
 
-    // Nota: falta el login de usuarios (seller_id debería ser el id del
-    // usuario autenticado). Por ahora se guarda sin dueño asignado.
     const { data: vehicle, error: vErr } = await supabase
       .from('vehicles')
       .insert({
@@ -61,7 +65,8 @@ export default function VenderPage() {
       .insert({
         vehicle_id: vehicle.id,
         hub_id: HUB_MONTERREY_ID_PLACEHOLDER,
-        expected_price: priceNum,
+        expected_price: desiredReceive,
+        list_price: listPrice,
         commission_pct: COMMISSION_PCT,
         seller_id: null,
       })
@@ -70,7 +75,6 @@ export default function VenderPage() {
 
     if (lErr) { setStatus('error'); setErrorMsg(lErr.message); return; }
 
-    // Sube cada foto al bucket "listing-photos" y guarda su ruta.
     for (let i = 0; i < photos.length; i++) {
       const file = photos[i];
       const path = `${listing.id}/${Date.now()}-${file.name}`;
@@ -131,11 +135,12 @@ export default function VenderPage() {
           <input required inputMode="numeric" value={form.price} onChange={(e) => update('price', e.target.value.replace(/\D/g, ''))} />
         </label>
 
-        {priceNum > 0 && (
+        {listPrice > 0 && (
           <div style={{ background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 8, padding: 14, marginBottom: 14, fontSize: '.92rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Precio de venta</span><strong>{money(priceNum)}</strong></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--ink-2)' }}><span>Comisión CompraCar ({COMMISSION_PCT}%)</span><span>-{money(commissionAmount)}</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--line)', marginTop: 8, paddingTop: 8 }}><span>Tú recibes</span><strong>{money(netAmount)}</strong></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Precio de publicación</span>
+              <strong>{money(listPrice)}</strong>
+            </div>
           </div>
         )}
 
