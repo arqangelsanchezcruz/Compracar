@@ -11,7 +11,7 @@ export default function RootLayout({ children }) {
       <body>
         <header className="top">
           <div className="wrap top-in">
-            <a className="brand" href="/">CompraCar</a>
+            <a className="brand" href="/"><span className="mark">C</span>CompraCar</a>
             <nav>
               <a href="/autos">Compra un auto</a>
               <a href="/vender">Vende tu auto</a>
