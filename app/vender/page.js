@@ -40,6 +40,7 @@ export default function VenderPage() {
 
   const desiredReceive = Number(form.price) || 0;
   const listPrice = desiredReceive > 0 ? calcListPrice(desiredReceive) : 0;
+  const commissionAmount = listPrice > 0 ? listPrice - desiredReceive : 0;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -138,8 +139,16 @@ export default function VenderPage() {
         {listPrice > 0 && (
           <div style={{ background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 8, padding: 14, marginBottom: 14, fontSize: '.92rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Precio de publicación</span>
+              <span>Precio de venta</span>
               <strong>{money(listPrice)}</strong>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--ink-2)' }}>
+              <span>Comisión CompraCar</span>
+              <span>-{money(commissionAmount)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--line)', marginTop: 8, paddingTop: 8 }}>
+              <span>Tú recibes</span>
+              <strong>{money(desiredReceive)}</strong>
             </div>
           </div>
         )}
