@@ -47,42 +47,45 @@ export default function VenderPage() {
     setStatus('saving');
     setErrorMsg('');
 
-    const { data: vehicle, error: vErr } = await supabase
+    // Generamos los ids en el navegador en vez de pedirle a Supabase que
+    // nos regrese la fila recién creada: así evitamos que las reglas de
+    // seguridad (que todavía no deja ver autos sin publicar) nos bloqueen.
+    const vehicleId = crypto.randomUUID();
+    const { error: vErr } = await supabase
       .from('vehicles')
       .insert({
+        id: vehicleId,
         vin: form.vin.toUpperCase(),
         brand: form.brand,
         model: form.model,
         year: Number(form.year),
         mileage_km: Number(form.km),
-      })
-      .select()
-      .single();
+      });
 
     if (vErr) { setStatus('error'); setErrorMsg(vErr.message); return; }
 
-    const { data: listing, error: lErr } = await supabase
+    const listingId = crypto.randomUUID();
+    const { error: lErr } = await supabase
       .from('listings')
       .insert({
-        vehicle_id: vehicle.id,
+        id: listingId,
+        vehicle_id: vehicleId,
         hub_id: HUB_MONTERREY_ID_PLACEHOLDER,
         expected_price: desiredReceive,
         list_price: listPrice,
         commission_pct: COMMISSION_PCT,
         seller_id: null,
-      })
-      .select()
-      .single();
+      });
 
     if (lErr) { setStatus('error'); setErrorMsg(lErr.message); return; }
 
     for (let i = 0; i < photos.length; i++) {
       const file = photos[i];
-      const path = `${listing.id}/${Date.now()}-${file.name}`;
+      const path = `${listingId}/${Date.now()}-${file.name}`;
       const { error: upErr } = await supabase.storage.from('listing-photos').upload(path, file);
       if (upErr) { setStatus('error'); setErrorMsg('Auto guardado, pero una foto no se pudo subir: ' + upErr.message); return; }
       await supabase.from('listing_photos').insert({
-        listing_id: listing.id,
+        listing_id: listingId,
         storage_path: path,
         position: i,
         is_cover: i === 0,
